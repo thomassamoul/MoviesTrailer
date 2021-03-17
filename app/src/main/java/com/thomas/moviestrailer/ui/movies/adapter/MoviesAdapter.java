@@ -8,22 +8,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.thomas.moviestrailer.API.model.MoviesItem;
 import com.thomas.moviestrailer.R;
 
+import java.util.List;
+
 import static com.thomas.moviestrailer.constant.Constant.IMAGE_URL;
 
-public class MoviesAdapter extends PagedListAdapter<MoviesItem, MoviesAdapter.ViewHolder> {
+public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder> {
 
     private Context mContext;
+    List<MoviesItem> list;
 
-    public MoviesAdapter(Context context) {
-        super(MoviesItem.CALLBACK);
-        this.mContext = context;
+    public MoviesAdapter(Context mContext, List<MoviesItem> list) {
+        this.mContext = mContext;
+        this.list = list;
     }
 
     @NonNull
@@ -35,11 +37,16 @@ public class MoviesAdapter extends PagedListAdapter<MoviesItem, MoviesAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-        MoviesItem items = getItem(position);
+        MoviesItem items = list.get(position);
         holder.textView.setText(items.getTitle());
         Glide.with(mContext).load(IMAGE_URL + items.getPosterPath()).into(holder.imageView);
 
         holder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(items));
+    }
+
+    @Override
+    public int getItemCount() {
+        return list.size();
     }
 
     OnItemClickListener onItemClickListener;

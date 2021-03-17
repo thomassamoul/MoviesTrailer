@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 
@@ -21,29 +20,29 @@ import com.thomas.moviestrailer.databinding.FragmentMoviesBinding;
 import com.thomas.moviestrailer.ui.movieDetail.MovieDetailActivity;
 import com.thomas.moviestrailer.ui.movies.adapter.MoviesAdapter;
 
+import java.util.List;
+
 public class MoviesFragment extends Fragment {
 
-    private MoviesViewModel moviesViewModel;
     MoviesAdapter moviesAdapter;
     public static int movieId;
-    private PagedList<MoviesItem> list;
+    List<MoviesItem> list;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         FragmentMoviesBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_movies, container, false);
 
-        moviesViewModel = new ViewModelProvider(this).get(MoviesViewModel.class);
+        MoviesViewModel moviesViewModel = new ViewModelProvider(this).get(MoviesViewModel.class);
         View root = binding.getRoot();
 
-        moviesViewModel.getAllMovies();
+        moviesViewModel.getMovies();
         binding.recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
         binding.recyclerView.setHasFixedSize(true);
 
-        moviesViewModel.getMoviesPagedList().observe(getViewLifecycleOwner(), moviesItems -> {
-            list = moviesItems;
+        moviesViewModel.mutableLiveData.observe(getViewLifecycleOwner(), moviesItems -> {
+            list = moviesItems.getResults();
             Log.e("MOVIES*******", list.toString());
             Log.e("RESPOND******", moviesItems.toString());
-            moviesAdapter = new MoviesAdapter(getContext());
-            moviesAdapter.submitList(list);
+            moviesAdapter = new MoviesAdapter(getContext(), list);
             binding.recyclerView.setItemAnimator(new DefaultItemAnimator());
             binding.recyclerView.setAdapter(moviesAdapter);
             moviesAdapter.notifyDataSetChanged();

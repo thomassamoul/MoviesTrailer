@@ -11,8 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.thomas.moviestrailer.API.model.MovieDetail;
 import com.thomas.moviestrailer.R;
-import com.thomas.moviestrailer.database.model.FavouriteMovies;
 
 import java.util.List;
 
@@ -20,10 +20,10 @@ import static com.thomas.moviestrailer.constant.Constant.IMAGE_URL;
 
 public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.ViewHolder> {
 
-    private List<FavouriteMovies> list;
+    private List<MovieDetail> list;
     private Context context;
 
-    public FavouriteAdapter(List<FavouriteMovies> list, Context context) {
+    public FavouriteAdapter(List<MovieDetail> list, Context context) {
         this.list = list;
         this.context = context;
     }
@@ -37,7 +37,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-        FavouriteMovies items = list.get(position);
+        MovieDetail items = list.get(position);
 
         holder.textView.setText(items.getTitle());
         Glide.with(context).load(IMAGE_URL + items.getPosterPath()).into(holder.imageView);
@@ -46,7 +46,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.View
     }
 
 
-    public void changeData(List<FavouriteMovies> notes) {
+    public void changeData(List<MovieDetail> notes) {
         this.list = notes;
         notifyDataSetChanged();
     }
@@ -66,7 +66,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.View
     }
 
     public interface OnItemClickListener {
-        void onItemClick(FavouriteMovies FavouriteMovies);
+        void onItemClick(MovieDetail FavouriteMovies);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

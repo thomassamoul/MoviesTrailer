@@ -1,7 +1,5 @@
 package com.thomas.moviestrailer.ui.movieDetail;
 
-import android.util.Log;
-
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -10,9 +8,8 @@ import com.thomas.moviestrailer.API.model.CastAndCrew;
 import com.thomas.moviestrailer.API.model.MovieDetail;
 import com.thomas.moviestrailer.ui.movies.MoviesFragment;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MovieDetailViewModel extends ViewModel {
 
@@ -21,30 +18,18 @@ public class MovieDetailViewModel extends ViewModel {
     int movieId = MoviesFragment.movieId;
 
     public void getDetail() {
-        APIManager.getApi().getMovieDetail(movieId, APIManager.API_KEY).enqueue(new Callback<MovieDetail>() {
-            @Override
-            public void onResponse(Call<MovieDetail> call, Response<MovieDetail> response) {
-                movieDetailData.setValue(response.body());
-                Log.e("detailTAG", response.body().toString());
-            }
-
-            @Override
-            public void onFailure(Call<MovieDetail> call, Throwable t) {
-            }
-        });
+        APIManager.getApi().getMovieDetail(movieId, APIManager.API_KEY).
+                subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(movieDetail -> {
+                    movieDetailData.setValue(movieDetail);
+                });
     }
 
     public void getCast() {
-        APIManager.getApi().getMovieCast(movieId, APIManager.API_KEY).enqueue(new Callback<CastAndCrew>() {
-            @Override
-            public void onResponse(Call<CastAndCrew> call, Response<CastAndCrew> response) {
-                castData.setValue(response.body());
-            }
-
-            @Override
-            public void onFailure(Call<CastAndCrew> call, Throwable t) {
-
-            }
-        });
+        APIManager.getApi().getMovieCast(movieId, APIManager.API_KEY).
+                subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(castAndCrew -> castData.setValue(castAndCrew));
     }
 }

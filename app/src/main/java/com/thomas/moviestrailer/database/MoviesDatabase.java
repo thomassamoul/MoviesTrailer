@@ -6,10 +6,10 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
+import com.thomas.moviestrailer.API.model.MovieDetail;
 import com.thomas.moviestrailer.database.DAOs.MoviesDAO;
-import com.thomas.moviestrailer.database.model.FavouriteMovies;
 
-@Database(entities = {FavouriteMovies.class}, version = 1, exportSchema = false)
+@Database(entities = {MovieDetail.class}, version = 1, exportSchema = false)
 public abstract class MoviesDatabase extends RoomDatabase {
 
     private static final String DATABASE_NAME = "moviesDatabase";
@@ -19,9 +19,7 @@ public abstract class MoviesDatabase extends RoomDatabase {
 
     public static MoviesDatabase getInstance(Context context) {
         if (database == null) {
-            database = Room.databaseBuilder(context, MoviesDatabase.class, DATABASE_NAME).fallbackToDestructiveMigration()
-                    .allowMainThreadQueries()
-                    .build();
+            database = Room.databaseBuilder(context, MoviesDatabase.class, DATABASE_NAME).build();
         }
         return database;
     }

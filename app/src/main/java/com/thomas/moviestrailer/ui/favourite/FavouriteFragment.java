@@ -18,7 +18,6 @@ import com.thomas.moviestrailer.ui.favourite.adapter.FavouriteAdapter;
 import com.thomas.moviestrailer.ui.movieDetail.MovieDetailActivity;
 import com.thomas.moviestrailer.ui.movies.MoviesFragment;
 
-
 public class FavouriteFragment extends Fragment {
     FavouriteViewModel viewModel;
     FavouriteAdapter adapter;
@@ -32,8 +31,6 @@ public class FavouriteFragment extends Fragment {
 
         viewModel = new ViewModelProvider(this).get(FavouriteViewModel.class);
 
-        viewModel.getFav(getContext());
-
 
         binding.recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
         binding.recyclerView.setHasFixedSize(true);
@@ -44,7 +41,7 @@ public class FavouriteFragment extends Fragment {
     }
 
     private void getFavourites() {
-        viewModel.list.observe(getViewLifecycleOwner(), favouriteMovies -> {
+        viewModel.getMovies().observe(getViewLifecycleOwner(), favouriteMovies -> {
             adapter = new FavouriteAdapter(favouriteMovies, getContext());
             adapter.changeData(favouriteMovies);
             binding.recyclerView.setAdapter(adapter);

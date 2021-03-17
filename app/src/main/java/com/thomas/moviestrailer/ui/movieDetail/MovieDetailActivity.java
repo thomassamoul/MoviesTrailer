@@ -20,8 +20,9 @@ import com.thomas.moviestrailer.API.model.CastItem;
 import com.thomas.moviestrailer.API.model.CrewItem;
 import com.thomas.moviestrailer.API.model.MovieDetail;
 import com.thomas.moviestrailer.R;
+import com.thomas.moviestrailer.database.LocalMoviesDataSource;
+import com.thomas.moviestrailer.database.MoviesDataSource;
 import com.thomas.moviestrailer.database.MoviesDatabase;
-import com.thomas.moviestrailer.database.model.FavouriteMovies;
 import com.thomas.moviestrailer.databinding.ActivityDetailBinding;
 import com.thomas.moviestrailer.ui.movieDetail.adapter.MovieCastAdapter;
 import com.thomas.moviestrailer.ui.movieDetail.adapter.MovieCrewAdapter;
@@ -29,6 +30,10 @@ import com.thomas.moviestrailer.ui.movies.MoviesFragment;
 import com.thomas.moviestrailer.utils.SharedPreferencesUtils;
 
 import java.util.List;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.thomas.moviestrailer.constant.Constant.IMAGE_URL;
 
@@ -38,6 +43,14 @@ public class MovieDetailActivity extends AppCompatActivity {
     MovieCastAdapter movieCastAdapter;
     MovieCrewAdapter movieCrewAdapter;
     Dialog progressDialog;
+    MoviesDataSource dataSource;
+    private final CompositeDisposable mDisposable = new CompositeDisposable();
+
+    @Override
+    protected void onDestroy() {
+        mDisposable.clear();
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +60,8 @@ public class MovieDetailActivity extends AppCompatActivity {
         movieDetailViewModel = new ViewModelProvider(this).get(MovieDetailViewModel.class);
         movieDetailViewModel.getDetail();
         movieDetailViewModel.getCast();
+
+        dataSource = new LocalMoviesDataSource(MoviesDatabase.getInstance(getApplicationContext()).moviesDAO());
 
         progressDialog = createProgressDialog(this);
 
@@ -117,20 +132,16 @@ public class MovieDetailActivity extends AppCompatActivity {
     }
 
     private void deleteFavourite(MovieDetail movieDetail) {
-        MoviesDatabase.getInstance(getApplicationContext()).moviesDAO().deleteMovieById(movieDetail.getId());
+        mDisposable.add(dataSource.deleteMovie(movieDetail).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe());
     }
 
     private void addFavourite(MovieDetail movieDetail) {
-        FavouriteMovies favouriteMovies = new FavouriteMovies(movieDetail.getId(),
-                movieDetail.getOverview(),
-                movieDetail.getLanguage(),
-                movieDetail.getBackdrop(),
-                movieDetail.getTitle(),
-                movieDetail.getPosterPath(),
-                movieDetail.getStatus());
-        favouriteMovies.setId(movieDetail.getId());
-
-        MoviesDatabase.getInstance(getApplicationContext()).moviesDAO().insertMovie(favouriteMovies);
+        mDisposable.add(dataSource.insertMovie(movieDetail)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe());
     }
 
     public static Dialog createProgressDialog(Context context) {
